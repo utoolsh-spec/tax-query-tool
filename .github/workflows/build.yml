@@ -1,0 +1,35 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch: 
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: 1. 拉取最新代码
+      uses: actions/checkout@v4
+
+    - name: 2. 配置 Python 环境
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10' 
+
+    - name: 3. 安装依赖包和打包工具
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt
+
+    - name: 4. 执行专属打包命令
+      run: |
+        pyinstaller --onefile --windowed --collect-data ddddocr main.py 
+
+    - name: 5. 提取并上传 EXE 文件
+      uses: actions/upload-artifact@v4
+      with:
+        name: 上海税务状态查询工具-Windows版
+        path: dist/*.exe
