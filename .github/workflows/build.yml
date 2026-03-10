@@ -26,19 +26,17 @@ jobs:
 
     - name: Build EXE
       run: |
-        pyinstaller --onefile --windowed --collect-data ddddocr --collect-all ddddocr main.py
+        pyinstaller --onefile --windowed --name TaxQueryTool --collect-data ddddocr main.py
 
-    - name: Rename and check
+    - name: Check output
       run: |
-        ls dist/
-        Rename-Item -Path "dist/main.exe" -NewName "dist/TaxQueryTool.exe" -ErrorAction SilentlyContinue
         ls dist/
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: TaxQueryTool-Windows
-        path: dist/*.exe
+        path: dist/TaxQueryTool.exe
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
