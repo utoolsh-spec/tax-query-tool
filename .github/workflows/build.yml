@@ -18,18 +18,35 @@ jobs:
       with:
         python-version: '3.10' 
 
-    - name: Install dependencies
+    - name: Install dependencies (China mirror)
       run: |
-        python -m pip install --upgrade pip
-        pip install pyinstaller
-        pip install -r requirements.txt
+        python -m pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple
+        pip install pyinstaller -i https://pypi.tuna.tsinghua.edu.cn/simple
+        pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
     - name: Build EXE
       run: |
-        pyinstaller --onefile --windowed --collect-data ddddocr main.py 
+        pyinstaller --onefile --windowed --collect-data ddddocr main.py
+        Rename-Item -Path "dist/main.exe" -NewName "dist/TaxQueryTool.exe"
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: TaxQueryTool-Windows
-        path: dist/*.exe
+        path: dist/TaxQueryTool.exe
+
+    - name: Create Release
+      if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        name: 税务查询工具 v${{ github.run_number }}
+        body: |
+          上海税务状态批量查询工具 Windows 版
+          - 自动打包，开箱即用
+          - 无需安装 Python
+        files: dist/TaxQueryTool.exe
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
